@@ -23,15 +23,20 @@ repl env = do
   l <- getLine                                        -- Read
   case parse exprP "Expression" l of                  -- Parse
     Left err -> print err                             -- Diagnostics
-    Right expr ->
+    Right expr -> 
         -- runExcept returns a value of type `Either Diagnostic (Val, Env)`
       case runExcept $ runStateT (eval expr) env of   -- Eval
         Left err -> print err
         -- TODO:
         -- Insert line here: If return value is void,
         --                    loop with new env without printing
+        Right (Void, newEnv) -> 
+          repl newEnv
         -- Insert line here: Otherwise, print and loop with new env
         --
+        Right (val, newEnv) -> do
+          print val
+          repl newEnv
         -- The following line may be removed when you're done implementing
         --  the cases above:
         _ -> print "Error in Main.hs: Finish implementing repl"
